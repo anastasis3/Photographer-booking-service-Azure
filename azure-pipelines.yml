@@ -8,7 +8,7 @@ variables:
   PYTHON_VERSION: '3.11'
   AZURE_SERVICE_CONNECTION: 'PhotographerService-Connection'
   AZURE_WEBAPP_NAME: 'ProjectForAnastasiya'
-  PROJECT_FOLDER: 'PhotographerService'
+  PROJECT_FOLDER: ''
   STARTUP_FILE: 'main.py'
 
 stages:
@@ -73,6 +73,6 @@ stages:
     - task: AzureWebApp@1
       displayName: "DEPLOY TO AZURE"
       inputs:
-        azureSubscription: $(AZURE_SERVICE_CONNECTION)
+        azureSubscription: PhotographerService-Connection
         appName: $(AZURE_WEBAPP_NAME)
         package: .
