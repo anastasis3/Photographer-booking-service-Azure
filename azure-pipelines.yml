@@ -1,0 +1,78 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  PYTHON_VERSION: '3.11'
+  AZURE_SERVICE_CONNECTION: 'PhotographerService-Connection'
+  AZURE_WEBAPP_NAME: 'ProjectForAnastasiya'
+  PROJECT_FOLDER: 'PhotographerService'
+  STARTUP_FILE: 'main.py'
+
+stages:
+
+# ======================================
+# STAGE 1 — CHECK CODE EXECUTABILITY
+# ======================================
+- stage: CHECK_CODE
+  displayName: "CHECK IF CODE IS EXECUTABLE"
+  jobs:
+  - job: CHECK
+    displayName: "Check Python Syntax"
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '$(PYTHON_VERSION)'
+
+    - script: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        python -m py_compile $(PROJECT_FOLDER)/$(STARTUP_FILE)
+      displayName: "CHECK PYTHON SYNTAX"
+
+# ======================================
+# STAGE 2 — RUN TESTS
+# ======================================
+- stage: RUN_TESTS
+  displayName: "RUN TESTS"
+  dependsOn: CHECK_CODE
+  condition: succeeded()
+  jobs:
+  - job: TESTS
+    displayName: "Run Pytest"
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '$(PYTHON_VERSION)'
+
+    - script: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest
+        export PYTHONPATH=$(Build.SourcesDirectory)
+        pytest
+      displayName: "RUN PYTEST"
+
+# ======================================
+# STAGE 3 — DEPLOY TO AZURE WEB APP
+# ======================================
+- stage: DEPLOY
+  displayName: "DEPLOY TO AZURE WEB APP"
+  dependsOn: RUN_TESTS
+  condition: succeeded()
+  jobs:
+  - job: DEPLOY_JOB
+    displayName: "Deploy to Azure Web App"
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '$(PYTHON_VERSION)'
+
+    - task: AzureWebApp@1
+      displayName: "DEPLOY TO AZURE"
+      inputs:
+        azureSubscription: $(AZURE_SERVICE_CONNECTION)
+        appName: $(AZURE_WEBAPP_NAME)
+        package: .

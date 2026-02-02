@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+azure-servicebus
+pytest
+httpx
+dotenv
+azure-storage-queue
