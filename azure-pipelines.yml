@@ -7,7 +7,7 @@ pool:
 variables:
   PYTHON_VERSION: '3.11'
   AZURE_SERVICE_CONNECTION: 'PhotographerService-Connection'
-  AZURE_WEBAPP_NAME: 'ProjectForAnastasiya'
+  AZURE_WEBAPP_NAME: 'PhotographerService'
   PROJECT_FOLDER: '.'
   STARTUP_FILE: 'main.py'
 
